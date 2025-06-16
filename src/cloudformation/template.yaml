@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: 2010-09-09
+# This 'Transform' bit tells AWS to use SAM (Serverless Application Model) to process this template, which has a few
+# differences from using standard CloudFormation. (e.g., we can use Policies instead of having to specify a Role ARN)
+Transform: AWS::Serverless-2016-10-31
+Description: Minimal Java 21 AWS Lambda using OpenTelemetry via ADOT Layer
+
+Resources:
+  LambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://${aws.s3.bucket}/${project.artifactId}-${project.version}.jar
+      Runtime: java21
+      Handler: ADOTLambdaHandler::handleRequest
+      FunctionName: ${project.artifactId}-${project.version}
+      Timeout: 10
+      Policies:
+        - AWSLambdaBasicExecutionRole
+
+      Layers:
+        # This is the Amazon Distribution of OpenTelemetry (ADOT) Auto-Instrumentation Layer for Java
+        - arn:aws:lambda:${aws.region}:901920570463:layer:aws-otel-java-agent-${aws.architecture}-ver-1-32-0:6
+
+      Environment:
+        Variables:
+          AWS_LAMBDA_EXEC_WRAPPER: /opt/otel-handler # Used by the ADOT Layer to wrap the handler
+          #OTEL_SERVICE_NAME: ${project.artifactId}
+          #OTEL_TRACES_EXPORTER: otlp
+          #OTEL_METRICS_EXPORTER: otlp
+          #OTEL_EXPORTER_OTLP_ENDPOINT: https://collector.example.com:4317
+          #OTEL_PROPAGATORS: tracecontext,baggage
+
+      #  - arn:aws:lambda:<region>:901920570463:layer:aws-otel-java-agent-<architecture>-ver-1-32-0:6
+      #  - AWSLambda_ReadOnlyAccess
+      #  - AWSXrayWriteOnlyAccess
+      #  - AWSLambdaVPCAccessExecutionRole
+      Tracing: Active # Active tracing must be enabled for the ADOT layer to work properly
