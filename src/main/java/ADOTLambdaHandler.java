@@ -9,12 +9,10 @@ import java.util.Random;
 
 @SuppressWarnings("unused") // AWS Lambda uses this handler
 public class ADOTLambdaHandler implements RequestStreamHandler {
-
-    // Using SLF4J for logging (imported as a transitive dependency from logback-classic)
-    Logger logger = LoggerFactory.getLogger(ADOTLambdaHandler.class);
-
-    @Override
+    @Override // this is the handler method for the "normal" RequestStreamHandler
     public void handleRequest(final InputStream inputStream, final OutputStream outputStream, final Context context) {
+        // Using SLF4J for logging (imported as a transitive dependency from logback-classic)
+        Logger logger = LoggerFactory.getLogger(ADOTLambdaHandler.class);
         try {
             logger.trace("Lambda function received request");
 

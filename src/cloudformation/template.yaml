@@ -2,17 +2,18 @@ AWSTemplateFormatVersion: 2010-09-09
 # This 'Transform' bit tells AWS to use SAM (Serverless Application Model) to process this template, which has a few
 # differences from using standard CloudFormation. (e.g., we can use Policies instead of having to specify a Role ARN)
 Transform: AWS::Serverless-2016-10-31
-Description: Minimal Java 21 AWS Lambda using OpenTelemetry via ADOT Layer
+Description: Minimal Java ${project.java.version} AWS Lambda using OpenTelemetry via ADOT Layer
 
 Resources:
   LambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: s3://${aws.s3.bucket}/${project.artifactId}-${project.version}.jar
-      Runtime: java21
+      Runtime: java${project.java.version} # e.g., java17
       Handler: ADOTLambdaHandler::handleRequest
       FunctionName: ${project.artifactId}-${project.version}
-      Timeout: 10
+      Timeout: 30 # seconds range: [1, 900]
+      MemorySize: 512 # MB range: [128, 10240]
       Policies:
         - AWSLambdaBasicExecutionRole
 
@@ -23,14 +24,16 @@ Resources:
       Environment:
         Variables:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/otel-handler # Used by the ADOT Layer to wrap the handler
-          #OTEL_SERVICE_NAME: ${project.artifactId}
+
+          # OpenTelemetry configuration
+          OTEL_SERVICE_NAME: ${project.artifactId}-${project.version}
           #OTEL_TRACES_EXPORTER: otlp
           #OTEL_METRICS_EXPORTER: otlp
-          #OTEL_EXPORTER_OTLP_ENDPOINT: https://collector.example.com:4317
+          #OTEL_EXPORTER_OTLP_ENDPOINT: https://localhost:4317
           #OTEL_PROPAGATORS: tracecontext,baggage
 
-      #  - arn:aws:lambda:<region>:901920570463:layer:aws-otel-java-agent-<architecture>-ver-1-32-0:6
-      #  - AWSLambda_ReadOnlyAccess
-      #  - AWSXrayWriteOnlyAccess
-      #  - AWSLambdaVPCAccessExecutionRole
+          # ChatGPT claims these are mandatory to enable MDC context propagation / enrichment (trace, span id's)
+          #OTEL_INSTRUMENTATION_LOGGING_ENABLED: true
+          #OTEL_INSTRUMENTATION_LOGGING_MDC_ENABLED: true
+
       Tracing: Active # Active tracing must be enabled for the ADOT layer to work properly
