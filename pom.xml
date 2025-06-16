@@ -85,15 +85,16 @@
                 <version>3.2.2</version>
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
-                    <!-- Not sure how useful or required these filters are -->
+                    <!-- These filters and exclusions appear to be (unofficially) recommended by AWS,
+                         based on some of their provided examples -->
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>
                             <excludes>
-                                <!--exclude>module-info.class</exclude-->
-                                <exclude>META-INF/**</exclude>
-                                <!--exclude>META-INF/versions/**</exclude>
-                                <exclude>META-INF/services/**</exclude-->
+                                <exclude>module-info.class</exclude>
+                                <exclude>META-INF/*</exclude>
+                                <exclude>META-INF/versions/**</exclude>
+                                <exclude>META-INF/services/**</exclude>
                             </excludes>
                         </filter>
                     </filters>
@@ -138,11 +139,30 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.5.0</version>
                 <executions>
+                    <execution>
+                        <id>ensure-s3-bucket-exists</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>aws</executable>
+                            <arguments>
+                                <argument>s3</argument>
+                                <argument>mb</argument>
+                                <argument>s3://${aws.s3.bucket}</argument>
+                                <argument>--region</argument>
+                                <argument>${aws.region}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                     <!-- copies our packaged JAR to S3, so that it can be used by the CloudFormation template -->
                     <execution>
                         <id>upload-lambda-jar</id>
                         <phase>verify</phase>
-                        <goals><goal>exec</goal></goals>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
                         <configuration>
                             <executable>aws</executable>
                             <arguments>

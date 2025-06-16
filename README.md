@@ -9,8 +9,6 @@ CloudFormation. This example uses CloudFormation.
 
 ## Prerequisites
 - AWS CLI (v2) must be installed and at least one SSO profile configured.
-- An S3 bucket with the name specified by the corresponding `aws.s3.bucket` property (in the pom file) must exist in 
-  the AWS account you intend to run in.
 
 ## Running locally
 
@@ -20,3 +18,11 @@ To run this example locally, you will first need to do one (possibly two) steps:
   - For non-default profiles: You will need to specify `--profile <profile_name>` as arg(s) in the CLI command.
   - For non-default profiles: Set the `AWS_PROFILE` environment variable to the profile you want to use.
 - Run `mvn clean verify`
+
+On running the above command, the following will happen:
+- A S3 bucket will be created with the name (and region) specified by the corresponding properties in the pom file.
+- The Lambda's packaged JAR file will be uploaded to this bucket.
+- A CloudFormation stack will be created using this project's artifact id (also in the pom file) as the stack name.
+  - The created stack will contain two resources — the LambdaFunction and its LambdaFunctionRole.
+  - The LambdaFunction should contain an `aws-otel-java-agent-xyz` ADOT layer. 
+    - `xyz` being the architecture (e.g. `amd64`) and version (e.g. `ver-1-32-0`) of the agent.
