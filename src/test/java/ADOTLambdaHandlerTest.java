@@ -10,6 +10,7 @@ import static org.mockito.Mockito.mock;
 public class ADOTLambdaHandlerTest {
     @Test
     public void testHandleRequest() {
+        // Placeholder text - input is not currently used in any way, shape, or form (by the handler)
         var inputMessage = """
                 {
                     "key1": "value1",

@@ -24,8 +24,6 @@ Resources:
       Environment:
         Variables:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/otel-handler # Used by the ADOT Layer to wrap the handler
-
-          # OpenTelemetry configuration
           OTEL_SERVICE_NAME: ${project.artifactId}-${project.version}
           #OTEL_TRACES_EXPORTER: otlp
           #OTEL_METRICS_EXPORTER: otlp
@@ -33,6 +31,7 @@ Resources:
           #OTEL_PROPAGATORS: tracecontext,baggage
 
           # ChatGPT claims these are mandatory to enable MDC context propagation / enrichment (trace, span id's)
+          # (I remain unconvinced, but leaving them here for now)
           #OTEL_INSTRUMENTATION_LOGGING_ENABLED: true
           #OTEL_INSTRUMENTATION_LOGGING_MDC_ENABLED: true
 
