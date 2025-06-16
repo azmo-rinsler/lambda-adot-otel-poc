@@ -10,7 +10,9 @@ import java.util.Random;
 @SuppressWarnings("unused") // AWS Lambda uses this handler
 public class ADOTLambdaHandler implements RequestStreamHandler {
 
+    // Using SLF4J for logging (imported as a transitive dependency from logback-classic)
     Logger logger = LoggerFactory.getLogger(ADOTLambdaHandler.class);
+
     @Override
     public void handleRequest(final InputStream inputStream, final OutputStream outputStream, final Context context) {
         try {
@@ -18,9 +20,9 @@ public class ADOTLambdaHandler implements RequestStreamHandler {
 
             // Simulate doing <stuff> with a random delay
             var delay = new Random().nextInt(1000, 6000);
-            logger.info("Sleeping for {} seconds to simulate doing <stuff>", delay / 1000.0);
+            logger.info("Sleeping for {} seconds to simulate doing things and stuff", delay / 1000.0);
             Thread.sleep(delay);
-            logger.info("Finished doing <stuff>");
+            logger.info("Finished doing things and stuff");
 
             logger.trace("Lambda function completed successfully");
         }
