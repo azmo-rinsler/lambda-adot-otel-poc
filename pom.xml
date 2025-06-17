@@ -23,7 +23,7 @@
         <aws.id>145612473986</aws.id>
         <aws.region>us-east-1</aws.region>
         <aws.architecture>amd64</aws.architecture>
-        <!-- Manually created this bucket for the POC, but it could be programmatically created if needed -->
+        <!-- The exec plugin will create this bucket as part of the verify phase, if need be -->
         <aws.s3.bucket>adot-java-lambda-poc</aws.s3.bucket>
     </properties>
 
