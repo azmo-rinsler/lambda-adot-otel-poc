@@ -1,5 +1,5 @@
 <configuration>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <!-- The expectation is that logs should include trace and span ID's (Open Telemetry) -->
             <pattern>
@@ -8,7 +8,12 @@
         </encoder>
     </appender>
 
+    <!-- Wrap logging appender, for example ConsoleAppender, with OpenTelemetryAppender -->
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.mdc.v1_0.OpenTelemetryAppender">
+        <appender-ref ref="CONSOLE"/>
+    </appender>
+
     <root level="INFO">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="OTEL" />
     </root>
 </configuration>

@@ -1,15 +1,19 @@
 <configuration>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <!-- Tests do not include trace or span ID's, so we can use a simpler pattern -->
+            <!-- The expectation is that logs should include trace and span ID's (Open Telemetry) -->
             <pattern>
-                [%d{ISO8601}] %-5level %logger{36} - %msg%n
+                [%d{ISO8601}] [%X{trace_id} %X{span_id}] %-5level %logger{36} - %msg%n
             </pattern>
         </encoder>
     </appender>
 
-    <!-- For tests, we'll use TRACE level logging -->
+    <!-- Wrap logging appender, for example ConsoleAppender, with OpenTelemetryAppender -->
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.mdc.v1_0.OpenTelemetryAppender">
+        <appender-ref ref="CONSOLE"/>
+    </appender>
+
     <root level="TRACE">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="OTEL" />
     </root>
 </configuration>
