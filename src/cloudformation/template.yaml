@@ -18,21 +18,12 @@ Resources:
         - AWSLambdaBasicExecutionRole
 
       Layers:
-        # This is the Amazon Distribution of OpenTelemetry (ADOT) Auto-Instrumentation Layer for Java
-        - arn:aws:lambda:${aws.region}:901920570463:layer:aws-otel-java-agent-${aws.architecture}-ver-1-32-0:6
+        # This is the Amazon Distribution of OpenTelemetry (ADOT) Layer for Java
+        - arn:aws:lambda:${aws.region}:901920570463:layer:aws-otel-java-wrapper-${aws.architecture}-ver-1-32-0:6
 
       Environment:
         Variables:
-          AWS_LAMBDA_EXEC_WRAPPER: /opt/otel-handler # Used by the ADOT Layer to wrap the handler
-          OTEL_SERVICE_NAME: ${project.artifactId}-${project.version}
-          #OTEL_TRACES_EXPORTER: otlp
-          #OTEL_METRICS_EXPORTER: otlp
-          #OTEL_EXPORTER_OTLP_ENDPOINT: https://localhost:4317
-          #OTEL_PROPAGATORS: tracecontext,baggage
+          AWS_LAMBDA_EXEC_WRAPPER: /opt/otel-stream-handler # Used by the ADOT Layer to wrap the handler (wrapper layer)
 
-          # ChatGPT claims these are mandatory to enable MDC context propagation / enrichment (trace, span id's)
-          # (I remain unconvinced, but leaving them here for now)
-          #OTEL_INSTRUMENTATION_LOGGING_ENABLED: true
-          #OTEL_INSTRUMENTATION_LOGGING_MDC_ENABLED: true
 
       Tracing: Active # Active tracing must be enabled for the ADOT layer to work properly
