@@ -8,12 +8,7 @@
         </encoder>
     </appender>
 
-    <!-- Wrap logging appender, for example ConsoleAppender, with OpenTelemetryAppender -->
-    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.mdc.v1_0.OpenTelemetryAppender">
-        <appender-ref ref="CONSOLE"/>
-    </appender>
-
     <root level="TRACE">
-        <appender-ref ref="OTEL" />
+        <appender-ref ref="CONSOLE" />
     </root>
 </configuration>
