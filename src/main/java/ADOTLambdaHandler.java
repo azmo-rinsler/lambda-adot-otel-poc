@@ -16,7 +16,7 @@ public class ADOTLambdaHandler implements RequestStreamHandler {
     @Override
     public void handleRequest(final InputStream inputStream, final OutputStream outputStream, final Context context) {
         try {
-            MDC.put("RequestId", context.getAwsRequestId());
+            MDC.put("requestId", context.getAwsRequestId());
             logger.trace("Lambda function received request");
             int delay = new Random().nextInt(1000, 6000);
             logger.info("Sleeping for {} seconds to simulate doing things", delay / 1000.0);
@@ -28,7 +28,6 @@ public class ADOTLambdaHandler implements RequestStreamHandler {
             logger.error("Exception: ", e);
             throw new RuntimeException(e);
         } finally {
-            // Always clear MDC to avoid contaminating future logs in the same container
             MDC.clear();
         }
     }

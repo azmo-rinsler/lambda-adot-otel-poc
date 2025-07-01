@@ -50,6 +50,13 @@
             <version>1.5.18</version>
         </dependency>
 
+        <!-- json-friendly encoder for the logback.xml file -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>8.0</version>
+        </dependency>
+
         <!-- MDC OpenTelemetry Instrumentation for Logback >= 1.0 -->
         <dependency>
             <groupId>io.opentelemetry.instrumentation</groupId>

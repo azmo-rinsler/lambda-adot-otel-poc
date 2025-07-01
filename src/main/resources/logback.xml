@@ -1,10 +1,19 @@
 <configuration>
+    <!-- JSON Console Appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <!-- The expectation is that logs should include trace and span ID's (Open Telemetry) -->
-            <pattern>
-                [%d{ISO8601}] [RequestId: %X{RequestId}] %-5level %logger{36} - %msg%n
-            </pattern>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+                <logLevel />
+                <loggerName />
+                <threadName />
+                <mdc />
+                <message />
+                <arguments />
+                <stackTrace />
+            </providers>
         </encoder>
     </appender>
 
