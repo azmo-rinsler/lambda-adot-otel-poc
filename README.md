@@ -45,5 +45,76 @@ The primary lambda internally calls the secondary one in order to test whether o
 
 <img width="1877" height="348" alt="image" src="https://github.com/user-attachments/assets/0e8a5397-62e9-4d78-88e6-266f4136fb47" />
 
+## Notable Information - How to add this to your own Lambda(s)
+
+The two most notable points which need attention in order to implement this own your own lambdas are located in the CloudFormation Template and the Handler class for a given lambda. In both cases the changes necessary are relatively minimal.
+
+### CloudFormation Template
+
+Within the CloudFormation, you will want to add one of the AWS-provided ADOT layers to the Resource.Properties block, as well as set Tracing to Active. It may also be necessary to set the `AWS_LAMBDA_EXEC_WRAPPER` environment variable.
+
+<img width="971" height="725" alt="image" src="https://github.com/user-attachments/assets/abe361f9-745c-4459-aee4-2619e206fc6e" />
+
+      Layers:
+        # This is the Amazon Distribution of OpenTelemetry (ADOT) Layer for Java
+        - arn:aws:lambda:us-east-1:901920570463:layer:aws-otel-java-wrapper-amd64-ver-1-32-0:6
+
+      Environment:
+        Variables:
+          AWS_LAMBDA_EXEC_WRAPPER: /opt/otel-stream-handler # Used by the ADOT Layer to wrap the handler (wrapper layer)
+
+      Tracing: Active # Active tracing must be enabled for the ADOT layer to work properly
+
+
+### Lambda Handler
+
+At the beginning of the code implementing the handler class - simply get your trace and span id's from the current span, and add those to your logger MDC:
+
+Then - at the end of the handler code - make sure you end the span itself:
+
+    public class PrimaryLambdaHandler implements RequestStreamHandler {
+        private static final Logger logger = LoggerFactory.getLogger(PrimaryLambdaHandler.class);
+    
+        @Override
+        public void handleRequest(final InputStream inputStream, final OutputStream outputStream, final Context context) {
+            var span = Span.current();
+            try {
+                // add open telemetry span context to MDC, assuming said context is valid
+                var spanCtx = span.getSpanContext();
+                if (spanCtx.isValid()) {
+                    MDC.put("traceId", spanCtx.getTraceId());
+                    MDC.put("spanId", spanCtx.getSpanId());
+                }
+    
+                // Do stuff
+            }
+            finally {
+                span.end();
+                MDC.clear();
+            }
+        }
+    }
+
+If you aren't able to access `Span.current()` - you may need to import Open Telemetry into your pom file, in which case you should add the Open Telemetry bom to your DependencyManagement section, and the Open Telemetry API to your dependencies:
+
+        <dependencyManagement>
+          <dependencies>
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom</artifactId>
+                <version>2.16.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+          </dependencies>
+        </dependencyManagement>
+
+        <dependencies>
+          <dependency>
+              <groupId>io.opentelemetry</groupId>
+              <artifactId>opentelemetry-api</artifactId>
+          </dependency>
+        </dependencies>
+
 
 
