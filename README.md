@@ -26,3 +26,24 @@ On running the above command, the following will happen:
   - The created stack will contain two resources — the LambdaFunction and its LambdaFunctionRole.
   - The LambdaFunction should contain an `aws-otel-java-agent-xyz` ADOT layer. 
     - `xyz` being the architecture (e.g. `amd64`) and version (e.g. `ver-1-32-0`) of the agent.
+
+# What this PoC does
+
+This project creates 2 Java Lambda functions in AWS - both of which are using an ADOT (AWS Distro for Open Telemetry) layer to enable sending telemetry directly to CloudWatch (without having to set up an Otel Collector). 
+Both lambdas are created using CloudFormation, and deployed using Maven.
+
+The primary lambda internally calls the secondary one in order to test whether or not logs from both lambdas are correctly being traced over multiple lambda calls.
+
+> [!Note]
+> It usually takes several minutes for CloudWatch to finish processing fresh telemetry information - do not expect traces to show up complete with all logs, etc. immediately upon function invokation!
+
+### Example Trace:
+
+<img width="1831" height="430" alt="image" src="https://github.com/user-attachments/assets/b6c03e03-c1d2-440a-aa9d-35e9d6bbc1c9" />
+
+<img width="1875" height="738" alt="image" src="https://github.com/user-attachments/assets/2fa16c2a-9a10-4084-a40d-07a57c41bd37" />
+
+<img width="1877" height="348" alt="image" src="https://github.com/user-attachments/assets/0e8a5397-62e9-4d78-88e6-266f4136fb47" />
+
+
+
