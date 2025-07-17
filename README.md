@@ -70,7 +70,7 @@ Within the CloudFormation, you will want to add one of the AWS-provided ADOT lay
 
 At the beginning of the code implementing the handler class - simply get your trace and span id's from the current span, and add those to your logger MDC:
 
-Then - at the end of the handler code - make sure you end the span itself:
+Make sure you end the span and clear your MDC context at the end of the handler..? `// I'm not sure how necessary this step is`
 
     public class PrimaryLambdaHandler implements RequestStreamHandler {
         private static final Logger logger = LoggerFactory.getLogger(PrimaryLambdaHandler.class);
