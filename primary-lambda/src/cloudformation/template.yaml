@@ -5,17 +5,22 @@ Transform: AWS::Serverless-2016-10-31
 Description: Minimal Java ${project.java.version} AWS Lambda using OpenTelemetry via ADOT Layer
 
 Resources:
-  LambdaFunction:
+  PrimaryLambda:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: s3://${aws.s3.bucket}/${project.artifactId}-${project.version}.jar
       Runtime: java${project.java.version} # e.g., java17
-      Handler: ADOTLambdaHandler::handleRequest
+      Handler: PrimaryLambdaHandler::handleRequest
       FunctionName: ${project.artifactId}-${project.version}
       Timeout: 30 # seconds range: [1, 900]
       MemorySize: 512 # MB range: [128, 10240]
       Policies:
         - AWSLambdaBasicExecutionRole
+        # Tells the primary lambda that it has permission to invoke the secondary one
+        - Statement:
+          - Effect: Allow
+            Action: lambda:InvokeFunction
+            Resource: !ImportValue SecondaryLambdaArn${aws.secondary.lambda.version}
 
       Layers:
         # This is the Amazon Distribution of OpenTelemetry (ADOT) Layer for Java
@@ -24,6 +29,22 @@ Resources:
       Environment:
         Variables:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/otel-stream-handler # Used by the ADOT Layer to wrap the handler (wrapper layer)
-
+          AWS_SECONDARY_LAMBDA_VERSION: ${aws.secondary.lambda.version}
 
       Tracing: Active # Active tracing must be enabled for the ADOT layer to work properly
+
+  # Tells the secondary lambda that it has permission to BE invoked by the primary one
+  SecondaryLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !ImportValue SecondaryLambdaArn${aws.secondary.lambda.version}
+      Action: lambda:InvokeFunction
+      Principal: lambda.amazonaws.com
+      SourceArn: !GetAtt PrimaryLambda.Arn
+
+# Exports the ARN of this function for use in other CloudFormation stacks
+Outputs:
+  PrimaryLambdaArnExport:
+    Value: !GetAtt PrimaryLambda.Arn
+    Export:
+      Name: PrimaryLambdaArn

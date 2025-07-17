@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.mockito.Mockito.mock;
 
-public class ADOTLambdaHandlerTest {
+public class SecondaryLambdaHandlerTest {
     @Test
     public void testHandleRequest() {
         // Placeholder text - input is not currently used in any way, shape, or form (by the handler)
@@ -20,7 +20,7 @@ public class ADOTLambdaHandlerTest {
         var inputStream = new ByteArrayInputStream(inputMessage.getBytes(StandardCharsets.UTF_8));
         var outputStream = new ByteArrayOutputStream();
         var context = mock(Context.class);
-        var handler = new ADOTLambdaHandler();
+        var handler = new SecondaryLambdaHandler();
         handler.handleRequest(inputStream, outputStream, context);
     }
 }
